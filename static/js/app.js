@@ -7,17 +7,22 @@ d3.json("samples.json").then((Data) => {
     var samplesData = Data.samples;
     // console.log(samplesData);
 
+
     // place filter on id
     var sampleResult = samplesData.filter(row => row.id.toString() === id)[0];
 
     // rank the result
     var otuID = sampleResult.otu_ids;
+   
     // console.log(otuID);
     var topSample = sampleResult.sample_values.slice(0,10).reverse();
+   
     // console.log(topSample);
     var topLabels = sampleResult.otu_labels.slice(0,10).reverse();
+   
     // console.log(topLabels);
     var topID = otuID.slice(0,10).reverse();
+    
     // console.log(topID);
     var OTU_id = topID.map(d => "OTU " + d);
         // console.log(`OTU IDS: ${OTU_id}`)
@@ -33,6 +38,7 @@ d3.json("samples.json").then((Data) => {
             color: sampleResult.otu_ids
         }
     };
+
     // Create data variable
     var traceData = [trace1];
 
@@ -58,6 +64,7 @@ d3.json("samples.json").then((Data) => {
         text: sampleResult.otu_labels,
     };
     
+   
     var traceData2 = [trace2];
     
     var layout2 = {
@@ -71,6 +78,7 @@ d3.json("samples.json").then((Data) => {
     });
 
   }
+
 
 // access metadata for each sample
 function indivInfo(id) {
@@ -90,9 +98,15 @@ function indivInfo(id) {
         // link demographic info to id
         Object.entries(result).forEach((key) => {   
             demoInfo.append("body").text(key[0] + ": " + key[1] + "\n");    
-        });
-    });
+        
+          });
+    
+      });
+
 }
+
+
+
 
 // Create function for default display
 function init() {
