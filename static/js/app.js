@@ -7,26 +7,26 @@ d3.json("samples.json").then((Data) => {
     var samplesData = Data.samples;
     // console.log(samplesData);
 
-    // Filter for specified id
+    // place filter on id
     var sampleResult = samplesData.filter(row => row.id.toString() === id)[0];
 
-    // For each individual, sort Sample Values in descending order
+    // rank the result
     var otuID = sampleResult.otu_ids;
     // console.log(otuID);
-    var top10Samples = sampleResult.sample_values.slice(0,10).reverse();
-    // console.log(top10Samples);
-    var top10labels = sampleResult.otu_labels.slice(0,10).reverse();
-    // console.log(top10labels);
-    var top10ID = otuID.slice(0,10).reverse();
-    // console.log(top10ID);
-    var OTU_id = top10ID.map(d => "OTU " + d);
+    var topSample = sampleResult.sample_values.slice(0,10).reverse();
+    // console.log(topSample);
+    var topLabels = sampleResult.otu_labels.slice(0,10).reverse();
+    // console.log(topLabels);
+    var topID = otuID.slice(0,10).reverse();
+    // console.log(topID);
+    var OTU_id = topID.map(d => "OTU " + d);
         // console.log(`OTU IDS: ${OTU_id}`)
 
     // Create plot
     var trace1 = {
-        x: top10Samples,
+        x: topSample,
         y: OTU_id,
-        text: top10labels,
+        text: topLabels,
         type:"bar",
         orientation: "h",
         marker:{
@@ -34,7 +34,7 @@ d3.json("samples.json").then((Data) => {
         }
     };
     // Create data variable
-    var data = [trace1];
+    var traceData = [trace1];
 
     // create layout
     var layout = {
@@ -44,9 +44,9 @@ d3.json("samples.json").then((Data) => {
         }
 
      // Create the bar plot
-     Plotly.newPlot("bar", data, layout);
+     Plotly.newPlot("bar", traceData, layout);
 
-    // Create a bubble chart 
+    // Create the bubble chart 
     var trace2 = {
         x: sampleResult.otu_ids,
         y: sampleResult.sample_values,
@@ -58,113 +58,53 @@ d3.json("samples.json").then((Data) => {
         text: sampleResult.otu_labels,
     };
     
-    var data2 = [trace2];
+    var traceData2 = [trace2];
     
     var layout2 = {
-        title: '<b>OTU represented in a bubble chart</b>',
+        title: '<b>OTU mapped in a bubble chart</b>',
         showlegend: false,
         height: 600,
         width: 1100,
      };
     
-    Plotly.newPlot("bubble", data2, layout2);
+    Plotly.newPlot("bubble", traceData2, layout2);
     });
 
   }
 
-// Create function to gather metadata for each individual
+// access metadata for each sample
 function indivInfo(id) {
-    d3.json("samples.json").then((incomingData) => {
-        var metadata = incomingData.metadata;
+    d3.json("samples.json").then((RawData) => {
+        var metadata = RawData.metadata;
         // console.log(metadata);
 
-        // Filter for specified id
+        // Filter id
         var result = metadata.filter(row => row.id.toString() === id)[0];
 
-        // Display to demographic info panel
+        // Display demographic info 
         var demoInfo = d3.select("#sample-metadata");
         
-        // Clear demographic info panel before new info is updated
+        // Clear demographic info for the new info 
         demoInfo.html("");
 
-        // Map demographic info to id
+        // link demographic info to id
         Object.entries(result).forEach((key) => {   
             demoInfo.append("body").text(key[0] + ": " + key[1] + "\n");    
         });
     });
 }
 
-// Adapt gauge chart to plot weekly washing frequency of individual
-function gaugeInfo(id) {
-    d3.json("samples.json").then((incomingData) => {
-        // console.log(incomingData);
-    
-        var metadata = incomingData.metadata;
-        // console.log(metadata);
-    
-        // Filter for specified id
-        var metaResult = metadata.filter(row => row.id.toString() === id)[0];
-    
-        // Identify frequency of washing
-        var wfreqData = metaResult.wfreq;
-
-        // Modify gauge to account for values ranging from 0 to 9
-        var data = [
-            {
-              type: "indicator",
-              mode: "gauge+number",
-              value: wfreqData,
-              title: { text: "<b>Belly Button Washing Frequency</b> <br> Washing(s) per Week </br>", font: { size: 16 } },
-              gauge: {
-                axis: { range: [null, 9], tickwidth: 1, tickcolor: "black" },
-                bgcolor: "white",
-                bar: { color: "#008080" },
-                borderwidth: 2,
-                bordercolor: "gray",
-                steps: [
-                  { range: [0, 1], text: "0-1", textinfo: 'text', textposition: 'inside', color: "#FFFFE0"},
-                  { range: [1, 2], text: "1-2", color: "#FFFACD" },
-                  { range: [2, 3], text: "2-3", color: "#FAFAD2" },
-                  { range: [3, 4], text: "3-4", color: "#FFEFD5" },
-                  { range: [4, 5], text: "4-5", color: "#FFE4B5" },
-                  { range: [5, 6], text: "5-6", color: "#FFDAB9" },
-                  { range: [6, 7], text: "6-7", color: "#EEE8AA" },
-                  { range: [7, 8], text: "7-8", color: "#F0E68C" },
-                  { range: [8, 9], text: "8-9", color: "#BDB76B" },
-                ],
-              }
-            }
-          ];
-          
-          var layout = {
-            width: 350,
-            height: 300,
-            margin: { t: 25, r: 25, l: 25, b: 25 },
-            font: { color: "black", family: "Arial" },
-            annotation: [{
-              text: "Washes per Week",
-                font: {
-                size: 10,
-                color: 'black'},
-              }],
-          };
-          
-        // Create plot
-          Plotly.newPlot('gauge', data, layout);
-        });
-}
-
-// Create function for default data
+// Create function for default display
 function init() {
 
-    // Link to drop down menu
+    // drop down menu
     var dropDownMenu = d3.select("#selDataset");
-    // read the data 
-    d3.json("samples.json").then((data)=> {
-        // console.log(data)
+    // access raw data from json
+    d3.json("samples.json").then((rawData)=> {
+        // console.log(rawData)
 
         // Populate ID data into drop down menu
-        data.names.forEach(function(name) {
+        rawData.names.forEach(function(name) {
             dropDownMenu.append("option").text(name).property("value");
         });
 
@@ -175,7 +115,7 @@ function init() {
         // Build the plot with the new stock
         getSample(id);
         indivInfo(id);
-        gaugeInfo(id);
+        
     });
 }
 
@@ -183,7 +123,7 @@ function init() {
 function optionChanged(id) {
     getSample(id);
     indivInfo(id);
-    gaugeInfo(id);
+    
 }
 
 init();
